@@ -1,0 +1,16 @@
+image: node:22
+
+pipelines:
+  default:
+    - step:
+        name: Deploy to Elastic Beanstalk
+        caches:
+          - node
+        script:
+          - apt-get update && apt-get install -y python3-pip zip
+          - pip3 install awsebcli
+          - npm install
+          - zip -r app.zip * .[^.]*
+          - eb init test --region us-west-2 --platform "Node.js 22"
+          - eb use testenvironment
+          - eb deploy
