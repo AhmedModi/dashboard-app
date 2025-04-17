@@ -7,20 +7,22 @@ pipelines:
         script:
           - apt-get update && apt-get install -y unzip curl
 
-          # Install packaging module manually
+          # Install required Python packages
           - pip install --upgrade pip
-          - pip install packaging
-
-          # Install EB CLI
-          - pip install awsebcli --upgrade
+          - pip install packaging awsebcli
 
           # Install Node.js and npm
           - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
           - apt-get install -y nodejs
 
-          # Install Node dependencies
+          # Install Node.js app dependencies
           - npm install
 
-          # Initialize and deploy
+          # Initialize Elastic Beanstalk CLI (non-interactive)
           - eb init test --region us-west-2 --platform "Node.js 22"
+
+          # 🔥 Set the default environment (this is the fix!)
+          - eb use testenvironment
+
+          # 🚀 Deploy to Elastic Beanstalk
           - eb deploy
