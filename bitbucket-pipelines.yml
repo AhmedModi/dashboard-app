@@ -1,16 +1,25 @@
-image: node:22
+image: python:3.11
 
 pipelines:
   default:
     - step:
         name: Deploy to Elastic Beanstalk
-        caches:
-          - node
         script:
-          - apt-get update && apt-get install -y python3-pip zip
-          - pip3 install awsebcli
+          # Update and install unzip (required for eb cli)
+          - apt-get update && apt-get install -y unzip
+
+          # Install AWS EB CLI
+          - pip install awsebcli --upgrade
+
+          # Install Node.js and npm (needed to build the Node app)
+          - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+          - apt-get install -y nodejs
+
+          # Install app dependencies
           - npm install
-          - zip -r app.zip * .[^.]*
+
+          # Initialize Elastic Beanstalk (skip interactive setup by using config file)
           - eb init test --region us-west-2 --platform "Node.js 22"
-          - eb use testenvironment
+
+          # Deploy to Elastic Beanstalk
           - eb deploy
