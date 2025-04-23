@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 
-// Serve the login page on the root route
 app.get('/', (req, res) => {
   res.send(`
     <html>
@@ -84,10 +83,7 @@ app.get('/', (req, res) => {
   `);
 });
 
-// Handle the login form submission (POST request)
 app.post('/login', (req, res) => {
-  // In a real application, here you'd check the credentials.
-  // For this example, we're just sending a success message.
   res.send('<h2>Login successful!</h2>');
 });
 
