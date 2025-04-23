@@ -21,7 +21,7 @@ pipelines:
           # Initialize Elastic Beanstalk CLI (non-interactive)
           - eb init test --region us-west-2 --platform "Node.js 22"
 
-          # 🔥 Set the default environment (this is the fix!)
+          # 🔥 Set the default environment
           - eb use testenvironment
 
           # 🚀 Deploy to Elastic Beanstalk
