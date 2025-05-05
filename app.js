@@ -55,7 +55,7 @@ app.get('/', (req, res) => {
         button {
           width: 100%;
           padding: 10px;
-          background-color: #4CAF50;
+          background-color:rgb(175, 76, 76);
           border: none;
           border-radius: 4px;
           color: white;
