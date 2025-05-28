@@ -1,0 +1,100 @@
+---
+title: "How I Automated a Node.js Login Page Deployment with Terraform & Bitbucket Pipelines"
+datePublished: Tue May 13 2025 12:47:31 GMT+0000 (Coordinated Universal Time)
+cuid: cmamibc8t000509l5g1z63uht
+slug: how-i-automated-a-nodejs-login-page-deployment-with-terraform-and-bitbucket-pipelines
+
+---
+
+*I got tired of manually deploying my Node.js login page to Elastic Beanstalk env via the AWS Console, so I automated everything from infrastructure to CI/CD using Terraform and Bitbucket Pipelines. Here’s the step-by-step breakdown.*
+
+---
+
+#### **1\. The Challenge: Manual Deployments on AWS**
+
+* **Pain Points**:
+    
+    * Time-consuming EB environment setup (VPC, security groups, scaling).
+        
+    * No version control for infrastructure.
+        
+    * Manual code uploads via AWS Console.
+        
+
+#### **2\. Infrastructure as Code with Terraform**
+
+* **Key Terraform Configurations**:
+    
+    * **S3 Backend**: Stored state files securely to enable team collaboration.
+        
+        ```plaintext
+        terraform {
+          backend "s3" {
+            bucket = "my-terraform-state-bucket"
+            key    = "elastic-beanstalk/terraform.tfstate"
+            region = "us-east-1"
+          }
+        }
+        ```
+        
+    * **Elastic Beanstalk Setup**: Defined environment, instance type, and auto-scaling.
+        
+    * **Networking**: VPC, subnets, and security groups (restricted to HTTP/HTTPS).
+        
+
+#### **3\. CI/CD with Bitbucket Pipelines**
+
+* **Pipeline Workflow**:
+    
+    1. **Code Push**: Triggered pipeline on `git push` (via VS Code terminal).
+        
+    2. **Test & Build**: Ran `npm install` and basic smoke tests.
+        
+    3. **Deploy**: Used `aws elasticbeanstalk deploy` to update the EB environment.
+        
+* **Sample** `bitbucket-pipelines.yml`:
+    
+    ```yaml
+    image: node:14
+    pipelines:
+      branches:
+        main:
+          - step:
+              script:
+                - npm install
+                - npm test
+                - zip -r deploy.zip .
+                - pipe: atlassian/aws-elasticbeanstalk-deploy:1.1.0
+                  variables:
+                    AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+                    AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+                    AWS_DEFAULT_REGION: "us-east-1"
+                    APPLICATION_NAME: "my-login-app"
+                    ENVIRONMENT_NAME: "login-app-prod"
+                    ZIP_FILE: "deploy.zip"
+    ```
+    
+
+#### **4\. The Result: Fully Automated Deployments**
+
+* **Achievements**:
+    
+    * **Infrastructure in Version Control**: Terraform files are tracked in Bitbucket.
+        
+    * **1-Click Deploys**: Code changes are deployed automatically to EB.
+        
+    * **Cost Savings**: Eliminated manual errors and reduced deployment time by 80%.
+        
+
+#### **5\. Lessons Learned**
+
+* **Terraform State**: Always use **remote backends (S3)** to avoid state conflicts.
+    
+* **Pipeline Security**: Store AWS credentials as **Bitbucket environment variables**.
+    
+* **EB Extensions**: Use `.ebextensions/` to customize EB environments (e.g., NGINX configs).
+    
+
+#### **Conclusion**
+
+> *Automating deployments with Terraform and Bitbucket Pipelines turned a tedious process into a seamless workflow. Next up: Adding multi-stage environments (dev/staging/prod).*
